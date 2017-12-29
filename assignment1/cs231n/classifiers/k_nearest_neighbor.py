@@ -216,3 +216,93 @@ class KNearestNeighbor(object):
 
     return y_pred
 
+
+"""
+# Last box code. Run different k's and look for the best using cross_validation I wrote.
+
+num_folds = 5
+k_choices = [1, 3, 5, 8, 10, 12, 15, 20, 50, 100]
+
+X_train_folds = []
+y_train_folds = []
+################################################################################
+# TODO:                                                                        #
+# Split up the training data into folds. After splitting, X_train_folds and    #
+# y_train_folds should each be lists of length num_folds, where                #
+# y_train_folds[i] is the label vector for the points in X_train_folds[i].     #
+# Hint: Look up the numpy array_split function.                                #
+################################################################################
+X_train_folds = np.array_split(X_train, num_folds)
+y_train_folds = np.array_split(y_train, num_folds)
+
+################################################################################
+#                                 END OF YOUR CODE                             #
+################################################################################
+
+# A dictionary holding the accuracies for different values of k that we find
+# when running cross-validation. After running cross-validation,
+# k_to_accuracies[k] should be a list of length num_folds giving the different
+# accuracy values that we found when using that value of k.
+k_to_accuracies = {}
+
+
+################################################################################
+# TODO:                                                                        #
+# Perform k-fold cross validation to find the best value of k. For each        #
+# possible value of k, run the k-nearest-neighbor algorithm num_folds times,   #
+# where in each case you use all but one of the folds as training data and the #
+# last fold as a validation set. Store the accuracies for all fold and all     #
+# values of k in the k_to_accuracies dictionary.                               #
+################################################################################
+def leaveFoldOut(folds, fold_index):
+    inner_shape = folds[0].shape
+    if len(inner_shape) > 1:
+        allfolds = np.zeros(shape=((0,inner_shape[1])))
+    else:
+        allfolds = np.zeros(shape=(0))
+
+    c_i = 0
+    for i in range(len(folds)):
+        if fold_index != i:
+            allfolds = np.append(allfolds, folds[i], axis=0)
+
+    return allfolds
+
+def accurecy(y_test_pred, y_test):
+    num_test = y_test.shape[0]
+    num_correct = np.sum(y_test_pred == y_test)
+    accuracy = float(num_correct) / num_test
+
+    return accuracy
+
+for k in k_choices:
+    accs_k = []
+    for i in range(num_folds):
+        c_x_train = leaveFoldOut(X_train_folds, i)
+        c_y_train = leaveFoldOut(y_train_folds, i)
+
+        c_x_test = X_train_folds[i]
+        c_y_test = y_train_folds[i]
+
+        model = KNearestNeighbor()
+        model.train(c_x_train, c_y_train)
+        c_y_pred = model.predict(c_x_test,k)
+
+        accs_k.append(accurecy(c_y_pred, c_y_test))
+
+    k_to_accuracies[k] = accs_k
+
+################################################################################
+#                                 END OF YOUR CODE                             #
+################################################################################
+
+# Print out the computed accuracies
+for k in sorted(k_to_accuracies):
+    #DF added sum_acc
+    sum_acc = 0
+    for accuracy in k_to_accuracies[k]:
+        print('k = %d, accuracy = %f' % (k, accuracy))
+        sum_acc += accuracy
+
+    print("!! Total Acc {0} !!\n".format(sum_acc/len(k_to_accuracies[k])))
+"""
